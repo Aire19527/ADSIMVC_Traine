@@ -4,7 +4,87 @@
 @{
 }
 
+<div class="row">
+    <div class="col-md-6">
+        <h1>Lista de Categorías</h1>
+    </div>
 
-<h2>Category</h2>
+    <div class="col-md-6">
+        <button type="button" class="btn btn-primary float-end">
+            Nueva categoría
+        </button>
+    </div>
 
-<p>Hola mundo</p>
+</div>
+
+<div class="row">
+
+    <div class="col-md-12">
+        <table class="table" id="tblCategory">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">Categoría</th>
+                    <th scope="col">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+
+@section Scripts {
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+
+            console.log('Hola mundo');
+            getAllCategory();
+        });
+
+
+        function getAllCategory() {
+            $.ajax({
+                url: '@Url.Action("GetAll", "Category")',
+                method: 'GET',
+                dataType: 'json',
+                success: function (result) {
+                    console.log('resultado: ', result);
+                    loadTable(result);
+                },
+                error: function (error) {
+                    console.error(error);
+                }
+            });
+        }
+
+        function loadTable(data){
+            const table = new DataTable('#tblCategory', {
+                data: data,
+                destroy: true,
+                responsive: true,
+                columns: [
+                    { data: 'category' },
+                    {
+                        data: null,
+                        render: function (data) {
+                            const id = data.idCategory;
+                            return `
+                                <button  class="btn btn-warning" onclick = "editSupplier(`+ id + `)" > <i class="fas fa-edit" > </i> Editar</button >
+                                <button class="btn btn-danger" onclick = "deleteSupplier(`+ id + `)" > <i class="far fa-trash-alt" > </i> Eliminar</button >
+                                `;
+                        }
+                    }
+                ]
+            });
+        }
+
+
+
+
+    </script>
+
+}
