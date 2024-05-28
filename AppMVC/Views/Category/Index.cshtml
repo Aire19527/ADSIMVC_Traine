@@ -10,7 +10,7 @@
     </div>
 
     <div class="col-md-6">
-        <button type="button" class="btn btn-primary float-end">
+        <button type="button" class="btn btn-primary float-end" onclick="openModal(true)">
             Nueva categoría
         </button>
     </div>
@@ -33,12 +33,39 @@
     </div>
 </div>
 
+<!-- Modal -->
+<div class="modal fade" id="modalCategory" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="idTitleModal">Crear categoría</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label class="col-form-label">Categoría</label>
+                            <input  type="text" class="form-control" id="txtIdCategory" placeholder="Categoría"/>
+                        </div>
 
-
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" onclick="saveCategory()">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
 @section Scripts {
 
     <script type="text/javascript">
 
+
+        listCategory = [];
+        idCategory = 0;
         $(document).ready(function () {
 
             console.log('Hola mundo');
@@ -53,7 +80,8 @@
                 dataType: 'json',
                 success: function (result) {
                     console.log('resultado: ', result);
-                    loadTable(result);
+                    listCategory = result;
+                    loadTable(listCategory);
                 },
                 error: function (error) {
                     console.error(error);
@@ -61,7 +89,7 @@
             });
         }
 
-        function loadTable(data){
+        function loadTable(data) {
             const table = new DataTable('#tblCategory', {
                 data: data,
                 destroy: true,
@@ -73,17 +101,111 @@
                         render: function (data) {
                             const id = data.idCategory;
                             return `
-                                <button  class="btn btn-warning" onclick = "editSupplier(`+ id + `)" > <i class="fas fa-edit" > </i> Editar</button >
-                                <button class="btn btn-danger" onclick = "deleteSupplier(`+ id + `)" > <i class="far fa-trash-alt" > </i> Eliminar</button >
-                                `;
+                                        <button  class="btn btn-warning" onclick = "editCategory(`+ id + `)" > <i class="fas fa-edit" > </i> Editar</button >
+                                        <button class="btn btn-danger" onclick = "deleteCategory(`+ id + `)" > <i class="far fa-trash-alt" > </i> Eliminar</button >
+                                        `;
                         }
                     }
                 ]
             });
         }
 
+        function editCategory(id) {
+            console.log('Editar: ', id);
+
+            const category = listCategory.find(x => x.idCategory == id);
+            $('#txtIdCategory').val(category.category);
+            idCategory = id;
+            console.log(category);
 
 
+            openModal(false);
+        }
+
+        function deleteCategory(idCategory) {
+            console.log('eliminar: ', idCategory);
+        }
+
+
+        function openModal(isInsert){
+            if (isInsert) {
+                $('#idTitleModal').html('Crear categoría');
+            } else {
+                $('#idTitleModal').html('Editar categoría');
+            }
+
+            const myModal = new bootstrap.Modal('#modalCategory', {
+                keyboard: false
+            });
+            myModal.show();
+        }
+        
+
+        function saveCategory(){
+            if (validateForm()){
+                const category = $('#txtIdCategory').val();
+                const parameter = {
+                    'category': category,
+                    'idCategory': idCategory
+                };
+
+                if (idCategory!=0)
+                {
+                    $.ajax({
+                        url: '@Url.Action("UpdateCategory", "Category")',
+                        method: 'PUT',
+                        data: parameter,
+                        dataType: 'json',
+                        success: function (result) {
+
+                            $('#modalCategory').modal('hide');
+                            getAllCategory();
+                            clearForm();
+                        },
+                        error: function (error) {
+                            console.error(error);
+                        }
+                    });
+                }else{
+
+                    $.ajax({
+                        url: '@Url.Action("AddCategory", "Category")',
+                        method: 'POST',
+                        data: parameter,
+                        dataType: 'json',
+                        success: function (result) {
+
+                            $('#modalCategory').modal('hide');
+                            getAllCategory();
+                            clearForm();
+                        },
+                        error: function (error) {
+                            console.error(error);
+                        }
+                    });
+                }               
+            }
+
+            
+        }
+
+        function validateForm(){
+            if ($('#txtIdCategory').val()=='')
+            {
+                $('#txtIdCategory').focus();
+                toastMessage('warning','La categoría es obligatoria');
+                return false;
+            }
+
+
+            return true;
+        }
+
+        function clearForm(){
+            $('#txtIdCategory').val('');
+            idCategory = 0;
+
+        }
 
     </script>
 
