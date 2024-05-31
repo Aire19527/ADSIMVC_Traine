@@ -15,6 +15,9 @@ namespace MVC.Data.Entity
 
         [Required]
         public int Amount { get; set; }
+
+        public decimal Price { get; set; }
+
         [Required]
         public DateTime DateRegister { get; set; }
         public DateTime? DateUpdate { get; set; }

@@ -46,7 +46,6 @@ namespace MVC.Domain.Services
             return list;
         }
 
-
         public async Task<bool> AddCategory(AddCategoryDto add)
         {
             CategoryEntity entity = new CategoryEntity()
@@ -56,7 +55,6 @@ namespace MVC.Domain.Services
 
             return await _categoryRepository.Add(entity) > 0;
         }
-
 
         public async Task<bool> UpdateCategory(CategoryDto update)
         {

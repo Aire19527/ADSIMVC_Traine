@@ -46,7 +46,7 @@
                     <div class="row">
                         <div class="col-md-12">
                             <label class="col-form-label">Categoría</label>
-                            <input  type="text" class="form-control" id="txtIdCategory" placeholder="Categoría"/>
+                            <input type="text" class="form-control" id="txtIdCategory" placeholder="Categoría" />
                         </div>
 
                     </div>
@@ -62,7 +62,6 @@
 @section Scripts {
 
     <script type="text/javascript">
-
 
         listCategory = [];
         idCategory = 0;
@@ -101,9 +100,9 @@
                         render: function (data) {
                             const id = data.idCategory;
                             return `
-                                        <button  class="btn btn-warning" onclick = "editCategory(`+ id + `)" > <i class="fas fa-edit" > </i> Editar</button >
-                                        <button class="btn btn-danger" onclick = "deleteCategory(`+ id + `)" > <i class="far fa-trash-alt" > </i> Eliminar</button >
-                                        `;
+                                                <button  class="btn btn-warning" onclick = "editCategory(`+ id + `)" > <i class="fas fa-edit" > </i> Editar</button >
+                                                <button class="btn btn-danger" onclick = "deleteCategory(`+ id + `)" > <i class="far fa-trash-alt" > </i> Eliminar</button >
+                                                `;
                         }
                     }
                 ]
@@ -122,12 +121,15 @@
             openModal(false);
         }
 
-        function deleteCategory(idCategory) {
-            console.log('eliminar: ', idCategory);
+        function deleteCategory(idCategory) {            
+            alertDelete().then((result) => {
+                if (result.isConfirmed) {
+                    confirmDeleteCategory(idCategory);
+                }
+            });
         }
 
-
-        function openModal(isInsert){
+        function openModal(isInsert) {
             if (isInsert) {
                 $('#idTitleModal').html('Crear categoría');
             } else {
@@ -139,61 +141,86 @@
             });
             myModal.show();
         }
-        
 
-        function saveCategory(){
-            if (validateForm()){
+        function saveCategory() {
+            if (validateForm()) {
                 const category = $('#txtIdCategory').val();
                 const parameter = {
                     'category': category,
                     'idCategory': idCategory
                 };
 
-                if (idCategory!=0)
-                {
-                    $.ajax({
-                        url: '@Url.Action("UpdateCategory", "Category")',
-                        method: 'PUT',
-                        data: parameter,
-                        dataType: 'json',
-                        success: function (result) {
-
-                            $('#modalCategory').modal('hide');
-                            getAllCategory();
-                            clearForm();
-                        },
-                        error: function (error) {
-                            console.error(error);
-                        }
-                    });
-                }else{
-
-                    $.ajax({
-                        url: '@Url.Action("AddCategory", "Category")',
-                        method: 'POST',
-                        data: parameter,
-                        dataType: 'json',
-                        success: function (result) {
-
-                            $('#modalCategory').modal('hide');
-                            getAllCategory();
-                            clearForm();
-                        },
-                        error: function (error) {
-                            console.error(error);
-                        }
-                    });
-                }               
+                if (idCategory != 0) {
+                    updateCategory(parameter);
+                } else {
+                    addCategory(parameter);
+                }
             }
 
-            
+
         }
 
-        function validateForm(){
-            if ($('#txtIdCategory').val()=='')
-            {
+        function addCategory(parameter){
+            $.ajax({
+                url: '@Url.Action("AddCategory", "Category")',
+                method: 'POST',
+                data: parameter,
+                dataType: 'json',
+                success: function (result) {
+
+                    $('#modalCategory').modal('hide');
+                    getAllCategory();
+                    clearForm();
+                },
+                error: function (error) {
+                    console.error(error);
+                }
+            });
+        }
+
+        function updateCategory(parameter) {
+            $.ajax({
+                url: '@Url.Action("UpdateCategory", "Category")',
+                method: 'PUT',
+                data: parameter,
+                dataType: 'json',
+                success: function (result) {
+
+                    $('#modalCategory').modal('hide');
+                    getAllCategory();
+                    clearForm();
+                },
+                error: function (error) {
+                    console.error(error);
+                }
+            });
+        }
+
+        function confirmDeleteCategory(idCategory) {
+            $.ajax({
+                url: '@Url.Action("DeleteCategory", "Category")',
+                method: 'DELETE',
+                data: {
+                    'idCategory': idCategory
+                },
+                dataType: 'json',
+                success: function (result) {
+
+                    listCategory = listCategory.filter(x => x.idCategory != idCategory);
+                    loadTable(listCategory);
+                    //getAllCategory();
+                },
+                error: function (error) {
+                    console.error(error);
+                }
+            });
+        }
+
+
+        function validateForm() {
+            if ($('#txtIdCategory').val() == '') {
                 $('#txtIdCategory').focus();
-                toastMessage('warning','La categoría es obligatoria');
+                toastMessage('warning', 'La categoría es obligatoria');
                 return false;
             }
 
@@ -201,7 +228,7 @@
             return true;
         }
 
-        function clearForm(){
+        function clearForm() {
             $('#txtIdCategory').val('');
             idCategory = 0;
 

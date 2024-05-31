@@ -1,12 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MVC.Data.DTO.Product;
 
 namespace MVC.Domain.Services.Interfaces
 {
     public interface IProductServices
     {
+        Task<List<ProductDto>> GetAllProduct();
+
+        Task<bool> AddProduct(AddProductDto add);
+
+        Task<bool> UpdateProduct(ProductDto update);
+
+        Task<bool> DeleteProduct(int idProduct);
     }
 }
