@@ -5,4 +5,334 @@
 }
 
 
-<h1>Productos</h1>
+
+<div class="row">
+    <div class="col-md-6">
+        <h1>Lista de Productos</h1>
+    </div>
+
+    <div class="col-md-6">
+        <button type="button" class="btn btn-primary float-end" onclick="openModal(true)">
+            Nuevo Producto
+        </button>
+    </div>
+
+</div>
+
+<div class="row">
+
+    <div class="col-md-12">
+        <table class="table" id="tblProduct">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">Nombre</th>
+                    <th scope="col">Cantidad</th>
+                    <th scope="col">Precio c/u</th>
+                    <th scope="col">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="modalProduct" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="idTitleModal">Crear producto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="col-form-label">Categoría</label>
+                            <select id="cmbCategory" class="form-control" onchange="changeCmbCategory()" >
+                                <option disabled selected>Seleccionar</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="col-form-label">Nombre</label>
+                            <input type="text" class="form-control" id="txtName" placeholder="Categoría" />
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="col-form-label">Cantidad</label>
+                            <input type="number" class="form-control" id="txtAmount" placeholder="Cantidad" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="col-form-label">Precio</label>
+                            <input type="number" class="form-control" id="txtPrice" placeholder="Precio" />
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal" onclick="clearForm()">Cerrar</button>
+                <button type="button" class="btn btn-primary" onclick="saveProduct()">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+
+    <script type="text/javascript">
+
+        listCategory = [];
+        listProducts = [];
+        idCategory= 0;
+        idProduct= 0;
+        $(document).ready(function () {
+
+            console.log('Hola mundo, desde productos');
+
+            getAllProducts();
+            getAllCategory();
+        });
+
+        function getAllProducts() {
+            $.ajax({
+                url: '@Url.Action("GetAllProduct", "Product")',
+                method: 'GET',
+                dataType: 'json',
+                success: function (result) {
+                    console.log('resultado productos: ', result);
+                    listProducts = result;
+                    loadTable(listProducts);
+                },
+                error: function (error) {
+                    console.error(error);
+                }
+            });
+        }
+
+        function loadTable(data) {
+            const table = new DataTable('#tblProduct', {
+                data: data,
+                destroy: true,
+                responsive: true,
+                columns: [
+                    { data: 'name' },
+                    { data: 'amount' },
+                    { data: 'price' },
+                    {
+                        data: null,
+                        render: function (data) {
+                            const id = data.idProduct;
+                            return `
+                                <button  class="btn btn-warning" onclick = "editProduct(`+ id + `)" > <i class="fas fa-edit" > </i> Editar</button >
+                                <button class="btn btn-danger" onclick = "deleteProduct(`+ id + `)" > <i class="far fa-trash-alt" > </i> Eliminar</button >
+                                `;
+                        }
+                    }
+                ]
+            });
+        }
+
+        function getAllCategory() {
+            $.ajax({
+                url: '@Url.Action("GetAll", "Category")',
+                method: 'GET',
+                dataType: 'json',
+                success: function (result) {
+                    console.log('resultado categorías: ', result);
+                    listCategory = result;
+                    loadCmbCategory(listCategory);
+                },
+                error: function (error) {
+                    console.error(error);
+                }
+            });
+        }
+
+        function loadCmbCategory(data, selected) {
+            $("#cmbCategory").empty();
+            $("#cmbCategory").append('<option value="" disabled selected>Seleccione una categoría</option>');
+            $.each(data, function (i, lista) {
+                if (data[i].idCategory == selected) {
+                    $("#cmbCategory").append('<option value="' + data[i].idCategory + '"selected>' + data[i].category + '</option>');
+                }
+                else {
+                    $("#cmbCategory").append('<option value="' + data[i].idCategory + '">' + data[i].category + '</option>');
+                }
+            });
+        }
+
+        function changeCmbCategory(){
+            const cmb = document.getElementById("cmbCategory");
+            idCategory = cmb.options[cmb.selectedIndex].value;
+            console.log('valor ha cambiado: ', idCategory);
+        }
+
+        function openModal(isInsert) {
+            if (isInsert) {
+                $('#idTitleModal').html('Crear producto');
+            } else {
+                $('#idTitleModal').html('Editar producto');
+            }
+
+            const myModal = new bootstrap.Modal('#modalProduct', {
+                keyboard: false
+            });
+            myModal.show();
+        }
+
+
+        function editProduct(id) {
+            const product = listProducts.find(x => x.idProduct == id);
+            $('#txtName').val(product.name);
+            $('#txtAmount').val(product.amount);
+            $('#txtPrice').val(product.price);
+            idCategory = product.idCategory;
+            loadCmbCategory(listCategory, product.idCategory);
+            idProduct = id;
+            console.log(product);
+
+
+            openModal(false);
+        }
+
+        function deleteProduct(idProduct) {
+            console.log('Eliminar: ', idProduct);
+            alertDelete().then((result) => {
+                if (result.isConfirmed) {
+                    confirmDeleteProduct(idProduct);
+                }
+            });
+        }
+
+        function saveProduct() {
+            if (validateForm()) {
+                const name = $('#txtName').val();
+                const amount = $('#txtAmount').val();
+                const price = $('#txtPrice').val();
+                const parameter = {
+                    'name': name,
+                    'amount': amount,
+                    'price': price,
+                    'idCategory': idCategory,
+                    'idProduct': idProduct
+                };
+
+                console.log('parametros: ', parameter);
+                if (idProduct != 0) {
+                    updateProduct(parameter);
+                } else {
+                    addProduct(parameter);
+                }
+            }
+
+
+        }
+
+        function addProduct(parameter) {
+            $.ajax({
+                url: '@Url.Action("AddProduct", "Product")',
+                method: 'POST',
+                data: parameter,
+                dataType: 'json',
+                success: function (result) {
+
+                    $('#modalProduct').modal('hide');
+                    getAllProducts();
+                    clearForm();
+                    toastMessage('success', 'Producto creado');
+                },
+                error: function (error) {
+                    console.error(error);
+                    alertError('Ha ocurrido un error, por favor vuelva a intentarlo');
+                }
+            });
+        }
+
+        function updateProduct(parameter) {
+            $.ajax({
+                url: '@Url.Action("UpdateProduct", "Product")',
+                method: 'PUT',
+                data: parameter,
+                dataType: 'json',
+                success: function (result) {
+
+                    $('#modalProduct').modal('hide');
+                    getAllProducts();
+                    clearForm();
+                    toastMessage('success', 'Producto actualizado');
+                },
+                error: function (error) {
+                    console.error(error);
+                    alertError('Ha ocurrido un error, por favor vuelva a intentarlo');
+                }
+            });
+        }
+
+        function confirmDeleteProduct(idProduct) {
+            $.ajax({
+                url: '@Url.Action("DeleteProduct", "Product")',
+                method: 'DELETE',
+                data: {
+                    'idProduct': idProduct
+                },
+                dataType: 'json',
+                success: function (result) {
+
+                    listProducts = listProducts.filter(x => x.idProduct != idProduct);
+                    loadTable(listProducts);
+                    toastMessage('success', 'Producto eliminado');
+                },
+                error: function (error) {
+                    console.error(error);
+                    alertError('Ha ocurrido un error, por favor vuelva a intentarlo');
+                }
+            });
+        }
+
+
+        function validateForm() {
+            if (idCategory==0) {
+                $('#cmbCategory').focus();
+                toastMessage('warning', 'La categoría es obligatoria');
+                return false;
+            }
+
+            if ($('#txtName').val() == '') {
+                $('#txtName').focus();
+                toastMessage('warning', 'El nombre es obligatorio');
+                return false;
+            }
+
+            if ($('#txtAmount').val() == '') {
+                $('#txtAmount').focus();
+                toastMessage('warning', 'La cantidad es obligatoria');
+                return false;
+            }
+
+            if ($('#txtPrice').val() == '') {
+                $('#txtPrice').focus();
+                toastMessage('warning', 'El precio es obligatorio');
+                return false;
+            }
+
+
+            return true;
+        }
+
+        function clearForm() {
+            $('#txtName').val('');
+            $('#txtAmount').val('');
+            $('#txtPrice').val('');
+            idCategory = 0;
+            idProduct = 0;
+            loadCmbCategory(listCategory);
+        }
+
+    </script>
+}

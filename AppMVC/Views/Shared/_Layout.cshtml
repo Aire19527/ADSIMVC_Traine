@@ -88,6 +88,39 @@
                 confirmButtonText: 'Si, Eliminar!',
             });
         }
+
+        function alertSucces(message, title = null) {
+            const alertTitle = title != null ? title : "Exitoso!";
+            return Swal.fire({
+                title: alertTitle,
+                text: message,
+                icon: 'success',
+                confirmButtonColor: '#3085d6',
+                confirmButtonText: 'Aceptar!',
+            });
+        }
+
+        function alertWarning(message, title = null) {
+            const alertTitle = title != null ? title : "Alerta!";
+            return Swal.fire({
+                title: alertTitle,
+                text: message,
+                icon: 'warning',
+                confirmButtonColor: '#3085d6',
+                confirmButtonText: 'Aceptar!',
+            });
+        }
+
+        function alertError(message, title = null) {
+            const alertTitle = title != null ? title : "Opps!";
+            return Swal.fire({
+                title: alertTitle,
+                text: message,
+                icon: 'error',
+                confirmButtonColor: '#3085d6',
+                confirmButtonText: 'Aceptar!',
+            });
+        }
     </script>
 </body>
 </html>
