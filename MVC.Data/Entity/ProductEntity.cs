@@ -6,6 +6,11 @@ namespace MVC.Data.Entity
     [Table("Product")]
     public class ProductEntity
     {
+        public ProductEntity()
+        {
+            ImageProductEntityies=new HashSet<ImageProductEntity>();
+        }
+
         [Key]
         public int IdProduct { get; set; }
 
@@ -26,6 +31,10 @@ namespace MVC.Data.Entity
         [ForeignKey("CategoryEntity")]
         public int IdCategory { get; set; }
         public CategoryEntity CategoryEntity { get; set; }
+
+        public IEnumerable<ImageProductEntity> ImageProductEntityies { get; set; }
+
+        public IEnumerable<InvoiceDetailEntity> InvoiceDetailEntities { get; set; }
 
     }
 }
