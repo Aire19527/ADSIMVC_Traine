@@ -13,6 +13,7 @@
 
     <div class="col-md-6">
         <button type="button" class="btn btn-primary float-end" onclick="openModal(true)">
+            <i class="fa-sharp fa-solid fa-plus"></i>
             Nuevo Producto
         </button>
     </div>
@@ -51,7 +52,7 @@
                     <div class="row">
                         <div class="col-md-6">
                             <label class="col-form-label">Categoría</label>
-                            <select id="cmbCategory" class="form-control" onchange="changeCmbCategory()" >
+                            <select id="cmbCategory" class="form-control" onchange="changeCmbCategory()">
                                 <option disabled selected>Seleccionar</option>
                             </select>
                         </div>
@@ -69,7 +70,7 @@
                         </div>
                         <div class="col-md-6">
                             <label class="col-form-label">Precio</label>
-                            <input type="number" class="form-control" id="txtPrice" placeholder="Precio" />
+                            <input type="text" class="form-control" id="txtPrice" placeholder="Precio" />
                         </div>
 
                     </div>
@@ -89,14 +90,22 @@
 
         listCategory = [];
         listProducts = [];
-        idCategory= 0;
-        idProduct= 0;
+        idCategory = 0;
+        idProduct = 0;
         $(document).ready(function () {
 
             console.log('Hola mundo, desde productos');
 
             getAllProducts();
             getAllCategory();
+
+            new Cleave('#txtPrice', {
+                numeral: true,
+                numeralThousandsGroupStyle: 'thousand',
+                numeralDecimalMark: ',',
+                delimiter: '.',
+                prefix: '$'
+            });
         });
 
         function getAllProducts() {
@@ -123,20 +132,45 @@
                 columns: [
                     { data: 'name' },
                     { data: 'amount' },
-                    { data: 'price' },
+                    {
+                        data: null,
+                        render: function (data) {
+
+                            return convertirAPesos(data.price);
+                        }
+                    },
+                    // { data: 'price' },
                     {
                         data: null,
                         render: function (data) {
                             const id = data.idProduct;
                             return `
-                                <button  class="btn btn-warning" onclick = "editProduct(`+ id + `)" > <i class="fas fa-edit" > </i> Editar</button >
-                                <button class="btn btn-danger" onclick = "deleteProduct(`+ id + `)" > <i class="far fa-trash-alt" > </i> Eliminar</button >
-                                `;
+                                                <button  class="btn btn-warning" onclick = "editProduct(`+ id + `)" > <i class="fas fa-edit" > </i> Editar</button >
+                                                <button class="btn btn-danger" onclick = "deleteProduct(`+ id + `)" > <i class="far fa-trash-alt" > </i> Eliminar</button >
+                                                `;
                         }
                     }
                 ]
             });
         }
+
+        function convertirAPesos(valor) {
+            // Convertir a número flotante en caso de ser necesario
+            //let numero = parseFloat(valor.toString().replace(/\/g, '').replace(',', '.'));
+            // Devolver el valor formateado
+            return '$' + valor.toLocaleString("es-CO", { minimumFractionDigits: 0 });
+        }
+
+
+        function limpiarValor(valor) {
+            console.log('valor recibido: ', valor);
+            // Eliminar el símbolo de peso y los puntos de separación de miles
+            const result = valor.replace(/\./g, '').replace('$', '');
+            return result;
+            //return parseFloat(valor.replace(/[\$\.]/g, '').replace(',', '.'));
+            // return parseFloat(valor.replace(/[\$,\.]/g, '').replace(',', '.'));
+        }
+
 
         function getAllCategory() {
             $.ajax({
@@ -167,7 +201,7 @@
             });
         }
 
-        function changeCmbCategory(){
+        function changeCmbCategory() {
             const cmb = document.getElementById("cmbCategory");
             idCategory = cmb.options[cmb.selectedIndex].value;
             console.log('valor ha cambiado: ', idCategory);
@@ -191,7 +225,7 @@
             const product = listProducts.find(x => x.idProduct == id);
             $('#txtName').val(product.name);
             $('#txtAmount').val(product.amount);
-            $('#txtPrice').val(product.price);
+            $('#txtPrice').val(convertirAPesos(product.price));
             idCategory = product.idCategory;
             loadCmbCategory(listCategory, product.idCategory);
             idProduct = id;
@@ -214,7 +248,7 @@
             if (validateForm()) {
                 const name = $('#txtName').val();
                 const amount = $('#txtAmount').val();
-                const price = $('#txtPrice').val();
+                const price = limpiarValor($('#txtPrice').val());
                 const parameter = {
                     'name': name,
                     'amount': amount,
@@ -297,7 +331,7 @@
 
 
         function validateForm() {
-            if (idCategory==0) {
+            if (idCategory == 0) {
                 $('#cmbCategory').focus();
                 toastMessage('warning', 'La categoría es obligatoria');
                 return false;

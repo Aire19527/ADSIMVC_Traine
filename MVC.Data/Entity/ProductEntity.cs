@@ -8,7 +8,7 @@ namespace MVC.Data.Entity
     {
         public ProductEntity()
         {
-            ImageProductEntityies=new HashSet<ImageProductEntity>();
+            ImageProductEntities = new HashSet<ImageProductEntity>();
         }
 
         [Key]
@@ -32,7 +32,7 @@ namespace MVC.Data.Entity
         public int IdCategory { get; set; }
         public CategoryEntity CategoryEntity { get; set; }
 
-        public IEnumerable<ImageProductEntity> ImageProductEntityies { get; set; }
+        public IEnumerable<ImageProductEntity> ImageProductEntities { get; set; }
 
         public IEnumerable<InvoiceDetailEntity> InvoiceDetailEntities { get; set; }
 

@@ -9,6 +9,7 @@ namespace MVC.Data.Repository.Interfaces
         Task<T> FirstOrDefault(Expression<Func<T, bool>> predicate);
 
         Task<int> Add(T entity);
+        Task<int> AddRange(IEnumerable<T> entities);
         Task<int> Update(T entity);
         Task<int> Remove(T entity);
 

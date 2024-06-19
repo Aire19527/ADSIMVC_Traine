@@ -32,6 +32,12 @@ namespace MVC.Data.Repository
             return await _context.SaveChangesAsync();
         }
 
+        public async Task<int> AddRange(IEnumerable<T> entities)
+        {
+            await _context.Set<T>().AddRangeAsync(entities);
+            return await _context.SaveChangesAsync();
+        }
+
         public async Task<int> Update(T entity)
         {
             // In case AsNoTracking is used
