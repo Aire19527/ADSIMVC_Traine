@@ -1,4 +1,5 @@
 ﻿using MVC.Data.DTO.Category;
+using MVC.Data.DTO.Invoice;
 using MVC.Data.DTO.Product;
 using MVC.Data.Entity;
 using MVC.Data.Repository.Interfaces;
@@ -51,7 +52,7 @@ namespace MVC.Domain.Services
                 Amount = add.Amount,
                 IdCategory = add.IdCategory,
                 DateRegister = DateTime.Now,
-                Price= add.Price,
+                Price = add.Price,
             };
 
             return await _productRepository.Add(entity) > 0;
@@ -77,10 +78,38 @@ namespace MVC.Domain.Services
             return await _productRepository.Remove(entity) > 0;
         }
 
-        //TODO: validar si el resultado es null
+
+
+        public async Task UpdateStockProduct(List<AddInvoiceDetailDto> Details)
+        {
+            foreach (var detail in Details)
+            {
+                ProductEntity product = await GetProductEntity(detail.IdProduct);
+                if (detail.Amount > product.Amount)
+                {
+                    string message = $"La cantidad de: [{product.Name}] es mayor a la que hay en Stock, disponibles: [{product.Amount}]";
+                    throw new Exception(message);
+                }
+
+                if (detail.Price != product.Price)
+                {
+                    string message = $"El precio de: [{product.Name}] no coincide con la que hay en el sistema.";
+                    throw new Exception(message);
+                }
+
+                product.Amount = (product.Amount - detail.Amount);
+                product.DateUpdate = DateTime.Now;
+                //pro
+
+                await _productRepository.Update(product);
+            }
+        }
+
         private async Task<ProductEntity> GetProductEntity(int idProduct)
         {
             ProductEntity entity = await _productRepository.FirstOrDefault(x => x.IdProduct == idProduct);
+            if (entity == null)
+                throw new Exception("El producto no existe en base de datos");
 
             return entity;
         }

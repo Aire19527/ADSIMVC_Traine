@@ -1,4 +1,5 @@
-﻿using MVC.Data.DTO.Product;
+﻿using MVC.Data.DTO.Invoice;
+using MVC.Data.DTO.Product;
 
 namespace MVC.Domain.Services.Interfaces
 {
@@ -11,5 +12,7 @@ namespace MVC.Domain.Services.Interfaces
         Task<bool> UpdateProduct(ProductDto update);
 
         Task<bool> DeleteProduct(int idProduct);
+
+        Task UpdateStockProduct(List<AddInvoiceDetailDto> Details);
     }
 }

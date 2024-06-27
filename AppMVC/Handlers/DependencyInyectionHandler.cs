@@ -14,6 +14,7 @@ namespace AppMVC.Handlers
             services.AddTransient<ICategoryServices, CategoryServices>();
             services.AddTransient<IProductServices, ProductServices>();
             services.AddTransient<IImagesProductServices, ImagesProductServices>();
+            services.AddTransient<IInvoiceServices, InvoiceServices>();
             
         }
     }

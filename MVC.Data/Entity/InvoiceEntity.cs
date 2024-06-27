@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MVC.Data.Entity
@@ -11,6 +12,12 @@ namespace MVC.Data.Entity
 
         public DateTime DateRegister { get; set; }
         public decimal Total { get; set; }
+
+        [ForeignKey("InvoiceTypeEntity")]
+        public int IdInvoiceType { get; set; }
+        public InvoiceTypeEntity InvoiceTypeEntity { get; set; }
+
+
 
         public IEnumerable<InvoiceDetailEntity> InvoiceDetailEntities { get; set; }
     }

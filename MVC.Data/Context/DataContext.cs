@@ -17,5 +17,6 @@ namespace MVC.Data.Context
         public DbSet<ImageProductEntity> ImageProductEntity { get; set; }
         public DbSet<InvoiceDetailEntity> InvoiceDetailEntity { get; set; }
         public DbSet<InvoiceEntity> InvoiceEntity { get; set; }
+        public DbSet<InvoiceTypeEntity> InvoiceTypeEntity { get; set; }
     }
 }
