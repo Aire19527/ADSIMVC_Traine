@@ -30,7 +30,11 @@ namespace MVC.Data.Entity
 
         [ForeignKey("CategoryEntity")]
         public int IdCategory { get; set; }
-        public CategoryEntity CategoryEntity { get; set; }
+        public CategoryEntity CategoryEntity { get; set; }  
+        
+        [ForeignKey("StateEntity")]
+        public int IdState { get; set; }
+        public StateEntity StateEntity { get; set; }
 
         public IEnumerable<ImageProductEntity> ImageProductEntities { get; set; }
 

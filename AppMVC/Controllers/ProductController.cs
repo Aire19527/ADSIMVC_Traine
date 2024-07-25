@@ -30,7 +30,7 @@ namespace AppMVC.Controllers
         [Route("GetAllProduct")]
         public async Task<IActionResult> GetAllProduct()
         {
-            List<ProductDto> categories = await _productServices.GetAllProduct();
+            List<ConsultProductDto> categories = await _productServices.GetAllProduct();
 
             return Ok(categories);
         }

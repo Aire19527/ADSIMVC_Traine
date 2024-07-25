@@ -5,7 +5,7 @@ namespace MVC.Domain.Services.Interfaces
 {
     public interface IProductServices
     {
-        Task<List<ProductDto>> GetAllProduct();
+        Task<List<ConsultProductDto>> GetAllProduct();
 
         Task<bool> AddProduct(AddProductDto add);
 

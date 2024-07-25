@@ -13,7 +13,7 @@ namespace MVC.Data.Repository.Interfaces
         Task<int> Update(T entity);
         Task<int> Remove(T entity);
 
-        Task<List<T>> GetAll();
+        Task<List<T>> GetAll(params Expression<Func<T, object>>[] includeProperties);
         Task<List<T>> GetWhere(Expression<Func<T, bool>> predicate);
 
         Task<int> CountAll();

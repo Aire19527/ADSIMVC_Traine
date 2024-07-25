@@ -1,4 +1,6 @@
-﻿using MVC.Data.DTO.Category;
+﻿using Microsoft.Extensions.Configuration;
+using MVC.Common.Enums;
+using MVC.Data.DTO.Category;
 using MVC.Data.DTO.Invoice;
 using MVC.Data.DTO.Product;
 using MVC.Data.Entity;
@@ -9,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace MVC.Domain.Services
 {
@@ -16,28 +19,31 @@ namespace MVC.Domain.Services
     {
         #region Attributes
         private readonly IRepository<ProductEntity> _productRepository;
+        private readonly IConfiguration _configuration;
         #endregion
 
         #region Builder
-        public ProductServices(IRepository<ProductEntity> productRepository)
+        public ProductServices(IRepository<ProductEntity> productRepository, IConfiguration configuration)
         {
             _productRepository = productRepository;
+            _configuration = configuration;
         }
         #endregion
 
         #region Methods
 
-        public async Task<List<ProductDto>> GetAllProduct()
+        public async Task<List<ConsultProductDto>> GetAllProduct()
         {
-            List<ProductEntity> products = await _productRepository.GetAll();
-
-            List<ProductDto> productDtos = products.Select(x => new ProductDto()
+            List<ProductEntity> products = await _productRepository.GetAll(x => x.StateEntity, c => c.CategoryEntity);
+            List<ConsultProductDto> productDtos = products.Select(x => new ConsultProductDto()
             {
                 Amount = x.Amount,
                 IdCategory = x.IdCategory,
                 IdProduct = x.IdProduct,
                 Name = x.Name,
-                Price = x.Price
+                Price = x.Price,
+                State = x.StateEntity.State,
+                Category = x.CategoryEntity.Category
             }).ToList();
 
             return productDtos;
@@ -46,6 +52,14 @@ namespace MVC.Domain.Services
 
         public async Task<bool> AddProduct(AddProductDto add)
         {
+            int stockLimit = Convert.ToInt32(_configuration["ConfigProduct:StockLimit"]);
+            int idState = (int)Enums.State.ProductoDisponible;
+
+            if (add.Amount == 0)
+                throw new Exception("El stock mínimo es de 1 producto.");
+            else if (add.Amount >= 1 && add.Amount <= stockLimit)
+                idState = (int)Enums.State.ProductoLimitado;
+
             ProductEntity entity = new ProductEntity()
             {
                 Name = add.Name,
@@ -53,6 +67,7 @@ namespace MVC.Domain.Services
                 IdCategory = add.IdCategory,
                 DateRegister = DateTime.Now,
                 Price = add.Price,
+                IdState = idState
             };
 
             return await _productRepository.Add(entity) > 0;
@@ -66,10 +81,13 @@ namespace MVC.Domain.Services
             entity.Amount = update.Amount;
             entity.IdCategory = update.IdCategory;
             entity.Price = update.Price;
-
+            entity.IdState = GetStateProduct(update.Amount);
 
             return await _productRepository.Update(entity) > 0;
         }
+
+
+
 
         public async Task<bool> DeleteProduct(int idProduct)
         {
@@ -77,8 +95,6 @@ namespace MVC.Domain.Services
 
             return await _productRepository.Remove(entity) > 0;
         }
-
-
 
         public async Task UpdateStockProduct(List<AddInvoiceDetailDto> Details)
         {
@@ -99,7 +115,7 @@ namespace MVC.Domain.Services
 
                 product.Amount = (product.Amount - detail.Amount);
                 product.DateUpdate = DateTime.Now;
-                //pro
+                product.IdState = GetStateProduct(product.Amount);
 
                 await _productRepository.Update(product);
             }
@@ -112,6 +128,22 @@ namespace MVC.Domain.Services
                 throw new Exception("El producto no existe en base de datos");
 
             return entity;
+        }
+
+        private int GetStateProduct(int stock)
+        {
+            int idState = 0;
+            int stockLimit = Convert.ToInt32(_configuration["ConfigProduct:StockLimit"]);
+            int stockMinimum = Convert.ToInt32(_configuration["ConfigProduct:StockMinimum"]);
+
+            if (stock >= stockLimit)
+                idState = (int)Enums.State.ProductoDisponible;
+            else if (stock >= stockMinimum)
+                idState = (int)Enums.State.ProductoLimitado;
+            else
+                idState = (int)Enums.State.ProductoAgotado;
+
+            return idState;
         }
         #endregion
     }

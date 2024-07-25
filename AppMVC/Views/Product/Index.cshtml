@@ -26,9 +26,11 @@
         <table class="table" id="tblProduct">
             <thead class="thead-dark">
                 <tr>
+                    <th scope="col">Categoría</th>
                     <th scope="col">Nombre</th>
                     <th scope="col">Cantidad</th>
                     <th scope="col">Precio c/u</th>
+                    <th scope="col">Estado</th>
                     <th scope="col">Acciones</th>
                 </tr>
             </thead>
@@ -130,6 +132,7 @@
                 destroy: true,
                 responsive: true,
                 columns: [
+                    { data: 'category' },
                     { data: 'name' },
                     { data: 'amount' },
                     {
@@ -139,7 +142,7 @@
                             return convertirAPesos(data.price);
                         }
                     },
-                    // { data: 'price' },
+                    { data: 'state' },
                     {
                         data: null,
                         render: function (data) {

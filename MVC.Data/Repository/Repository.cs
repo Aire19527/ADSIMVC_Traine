@@ -19,7 +19,26 @@ namespace MVC.Data.Repository
             _context = context;
         }
 
+
+        #region Privates
+        public IQueryable<T> AsQueryable()
+        {
+            return _context.Set<T>().AsQueryable<T>();
+        }
+
+        private IQueryable<T> PerformInclusions(IEnumerable<Expression<Func<T, object>>> includeProperties,
+                                              IQueryable<T> query)
+        {
+            return includeProperties.Aggregate(query, (current, includeProperty) => current.Include(includeProperty));
+        }
+
+
+
+        #endregion
+
         #region Public Methods
+
+
 
         public async Task<T> GetById(int id) => await _context.Set<T>().FindAsync(id);
 
@@ -51,9 +70,10 @@ namespace MVC.Data.Repository
             return await _context.SaveChangesAsync();
         }
 
-        public async Task<List<T>> GetAll()
+        public async Task<List<T>> GetAll(params Expression<Func<T, object>>[] includeProperties)
         {
-            return await _context.Set<T>().ToListAsync();
+            IQueryable<T> query = AsQueryable();
+            return await PerformInclusions(includeProperties, query).ToListAsync();
         }
 
         public async Task<List<T>> GetWhere(Expression<Func<T, bool>> predicate)
