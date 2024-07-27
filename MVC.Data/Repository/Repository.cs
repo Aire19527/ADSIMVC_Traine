@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using MVC.Data.Context;
 using MVC.Data.Repository.Interfaces;
 using System.Linq.Expressions;
@@ -85,6 +86,18 @@ namespace MVC.Data.Repository
 
         public Task<int> CountWhere(Expression<Func<T, bool>> predicate)
             => _context.Set<T>().CountAsync(predicate);
+
+
+        public IDbContextTransaction BeginTransaction()
+        {
+            return _context.Database.BeginTransaction();
+        }
+
+        public async Task<IDbContextTransaction> BeginTransactionAsync()
+        {
+            return await _context.Database.BeginTransactionAsync();
+        }
+
 
         #endregion
 

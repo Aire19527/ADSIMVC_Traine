@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Http;
+using System.ComponentModel.DataAnnotations;
 
 namespace MVC.Data.DTO.Product
 {
@@ -15,5 +16,7 @@ namespace MVC.Data.DTO.Product
         public int IdCategory { get; set; }
 
         public decimal Price { get; set; }
+
+        public List<IFormFile> Images { get; set; }
     }
 }

@@ -1,4 +1,6 @@
-﻿using System.Linq.Expressions;
+﻿using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace MVC.Data.Repository.Interfaces
 {
@@ -18,6 +20,10 @@ namespace MVC.Data.Repository.Interfaces
 
         Task<int> CountAll();
         Task<int> CountWhere(Expression<Func<T, bool>> predicate);
+
+        
+        IDbContextTransaction BeginTransaction();
+        Task<IDbContextTransaction> BeginTransactionAsync();
 
     }
 }

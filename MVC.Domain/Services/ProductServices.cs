@@ -20,13 +20,15 @@ namespace MVC.Domain.Services
         #region Attributes
         private readonly IRepository<ProductEntity> _productRepository;
         private readonly IConfiguration _configuration;
+        private readonly IImagesProductServices _imagesProductServices;
         #endregion
 
         #region Builder
-        public ProductServices(IRepository<ProductEntity> productRepository, IConfiguration configuration)
+        public ProductServices(IRepository<ProductEntity> productRepository, IConfiguration configuration, IImagesProductServices imagesProductServices)
         {
             _productRepository = productRepository;
             _configuration = configuration;
+            _imagesProductServices = imagesProductServices;
         }
         #endregion
 
@@ -34,7 +36,9 @@ namespace MVC.Domain.Services
 
         public async Task<List<ConsultProductDto>> GetAllProduct()
         {
-            List<ProductEntity> products = await _productRepository.GetAll(x => x.StateEntity, c => c.CategoryEntity);
+            List<ProductEntity> products = await _productRepository.GetAll(x => x.StateEntity,
+                                                                           c => c.CategoryEntity,
+                                                                           i => i.ImageProductEntities);
             List<ConsultProductDto> productDtos = products.Select(x => new ConsultProductDto()
             {
                 Amount = x.Amount,
@@ -43,7 +47,8 @@ namespace MVC.Domain.Services
                 Name = x.Name,
                 Price = x.Price,
                 State = x.StateEntity.State,
-                Category = x.CategoryEntity.Category
+                Category = x.CategoryEntity.Category,
+                UrlImages = x.ImageProductEntities.Select(x => x.UrlImage).ToList(),
             }).ToList();
 
             return productDtos;
@@ -70,7 +75,35 @@ namespace MVC.Domain.Services
                 IdState = idState
             };
 
-            return await _productRepository.Add(entity) > 0;
+            bool result = false;
+            using (var transaction = await _productRepository.BeginTransactionAsync())
+            {
+                try
+                {
+                    result = await _productRepository.Add(entity) > 0;
+
+                    if (result && add.Images != null)
+                    {
+                        result = await _imagesProductServices.AddImages(new AddImagesDto()
+                        {
+                            IdProduct = entity.IdProduct,
+                            Images = add.Images,
+                        });
+                    }
+
+                    if (!result)
+                        await transaction.RollbackAsync();
+                    else
+                        await transaction.CommitAsync();
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    throw ex;
+                }
+            }
+
+            return result;
         }
 
         public async Task<bool> UpdateProduct(ProductDto update)
@@ -83,7 +116,9 @@ namespace MVC.Domain.Services
             entity.Price = update.Price;
             entity.IdState = GetStateProduct(update.Amount);
 
-            return await _productRepository.Update(entity) > 0;
+            bool result = await _productRepository.Update(entity) > 0;
+
+            return result;
         }
 
 

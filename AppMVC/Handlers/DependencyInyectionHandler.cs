@@ -16,6 +16,8 @@ namespace AppMVC.Handlers
             services.AddTransient<IImagesProductServices, ImagesProductServices>();
             services.AddTransient<IInvoiceServices, InvoiceServices>();
             
+            services.AddSingleton<IHostingEnvironmentService, HostingEnvironmentHandler>();
+            
         }
     }
 }

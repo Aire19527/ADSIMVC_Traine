@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.EntityFrameworkCore.Update;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using MVC.Data.DTO.Product;
 using MVC.Data.Entity;
@@ -12,13 +13,13 @@ namespace MVC.Domain.Services
         #region Attributes
         private readonly IRepository<ImageProductEntity> _imagesProductRepository;
         private readonly IConfiguration _configuration;
-        private readonly IHostEnvironment _environment;
+        private readonly IHostingEnvironmentService _environment;
         #endregion
 
         #region Builder
         public ImagesProductServices(IRepository<ImageProductEntity> imagesProductRepository,
                                      IConfiguration configuration,
-                                     IHostEnvironment environment)
+                                     IHostingEnvironmentService environment)
         {
             _imagesProductRepository = imagesProductRepository;
             _configuration = configuration;
@@ -27,6 +28,19 @@ namespace MVC.Domain.Services
         #endregion
 
         #region Methods
+
+        public async Task<List<ImageDto>> GetImagesByProduct(int idProduct)
+        {
+            List<ImageProductEntity> images = await _imagesProductRepository.GetWhere(x => x.IdProduct == idProduct);
+            List<ImageDto> result = images.Select(x => new ImageDto()
+            {
+                IdImage = x.IdImageProduct,
+                UrlImage = x.UrlImage
+
+            }).ToList();
+
+            return result;
+        }
 
         public async Task<bool> AddImages(AddImagesDto imagesDto)
         {
@@ -50,7 +64,7 @@ namespace MVC.Domain.Services
                 }
 
                 string url = configFile["PathImages"];
-                string upload = Path.Combine(_environment.ContentRootPath, url);
+                string upload = Path.Combine(_environment.WebRootPath, url);
                 if (!Directory.Exists(upload))
                     Directory.CreateDirectory(upload);
 
@@ -87,7 +101,7 @@ namespace MVC.Domain.Services
         {
             if (!string.IsNullOrEmpty(filePath))
             {
-                string fullPath = Path.Combine(_environment.ContentRootPath, filePath);
+                string fullPath = Path.Combine(_environment.WebRootPath, filePath);
                 if (File.Exists(fullPath))
                     File.Delete(fullPath);
             }

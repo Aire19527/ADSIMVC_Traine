@@ -8,12 +8,14 @@ namespace AppMVC.Controllers
     {
         #region Attributes
         private readonly IProductServices _productServices;
+        private readonly IImagesProductServices _imagesProductServices;
         #endregion
 
         #region Builder
-        public ProductController(IProductServices productServices)
+        public ProductController(IProductServices productServices, IImagesProductServices imagesProductServices )
         {
             _productServices = productServices;
+            _imagesProductServices = imagesProductServices;
         }
         #endregion
 
@@ -59,6 +61,26 @@ namespace AppMVC.Controllers
         public async Task<IActionResult> DeleteProduct(int idProduct)
         {
             bool result = await _productServices.DeleteProduct(idProduct);
+
+            return Ok(result);
+        }
+
+
+        [HttpPost]
+        [Route("AddImages")]
+        public async Task<IActionResult> AddImages(AddImagesDto add)
+        {
+            bool result = await _imagesProductServices.AddImages(add);
+
+            return Ok(result);
+        }
+
+
+        [HttpGet]
+        [Route("GetImagesByProduct")]
+        public async Task<IActionResult> GetImagesByProduct(int idProduct)
+        {
+            List<ImageDto> result = await _imagesProductServices.GetImagesByProduct(idProduct);
 
             return Ok(result);
         }
