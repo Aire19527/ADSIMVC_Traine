@@ -4,5 +4,6 @@
     {
         public int IdImage { get; set; }
         public string UrlImage { get; set; }
+        public int IdProduct { get; set; }
     }
 }

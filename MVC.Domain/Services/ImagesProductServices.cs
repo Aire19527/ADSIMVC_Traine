@@ -29,13 +29,28 @@ namespace MVC.Domain.Services
 
         #region Methods
 
+        //TODO: implementar error de negocio
+        public async Task<bool> DeleteImageProduct(int idImageProduct)
+        {
+            ImageProductEntity image = await _imagesProductRepository.FirstOrDefault(x => x.IdImageProduct == idImageProduct);
+            if (image == null)
+                throw new Exception("La imagen a eliminar, no existe");
+
+            DeleteFilePath(image.UrlImage);
+
+
+            return await _imagesProductRepository.Remove(image) > 0;
+
+        }
+
         public async Task<List<ImageDto>> GetImagesByProduct(int idProduct)
         {
             List<ImageProductEntity> images = await _imagesProductRepository.GetWhere(x => x.IdProduct == idProduct);
             List<ImageDto> result = images.Select(x => new ImageDto()
             {
                 IdImage = x.IdImageProduct,
-                UrlImage = x.UrlImage
+                UrlImage = x.UrlImage,
+                IdProduct=x.IdProduct
 
             }).ToList();
 

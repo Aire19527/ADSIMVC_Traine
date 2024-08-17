@@ -48,7 +48,12 @@ namespace MVC.Domain.Services
                 Price = x.Price,
                 State = x.StateEntity.State,
                 Category = x.CategoryEntity.Category,
-                UrlImages = x.ImageProductEntities.Select(x => x.UrlImage).ToList(),
+                UrlImages = x.ImageProductEntities.Select(i => new ImageDto()
+                {
+                    IdImage = i.IdImageProduct,
+                    UrlImage = i.UrlImage,
+                    IdProduct=i.IdProduct
+                }).ToList(),
             }).ToList();
 
             return productDtos;

@@ -84,6 +84,16 @@ namespace AppMVC.Controllers
 
             return Ok(result);
         }
+
+        [HttpDelete]
+        [Route("DeleteImageProduct")]
+        public async Task<IActionResult> DeleteImageProduct(int idImageProduct)
+        {
+            bool result = await _imagesProductServices.DeleteImageProduct(idImageProduct);
+
+            return Ok(result);
+        }
+
         #endregion
     }
 }

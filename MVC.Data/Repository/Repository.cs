@@ -44,7 +44,7 @@ namespace MVC.Data.Repository
         public async Task<T> GetById(int id) => await _context.Set<T>().FindAsync(id);
 
         public Task<T> FirstOrDefault(Expression<Func<T, bool>> predicate)
-            => _context.Set<T>().FirstOrDefaultAsync(predicate);
+            => _context.Set<T>().AsNoTracking().FirstOrDefaultAsync(predicate);
 
         public async Task<int> Add(T entity)
         {

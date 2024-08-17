@@ -4,6 +4,7 @@ namespace MVC.Domain.Services.Interfaces
 {
     public interface IImagesProductServices
     {
+        Task<bool> DeleteImageProduct(int idImageProduct);
         Task<bool> AddImages(AddImagesDto imagesDto);
 
         void DeleteFilePath(string filePath);

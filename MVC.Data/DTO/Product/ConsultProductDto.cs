@@ -4,12 +4,12 @@
     {
         public ConsultProductDto()
         {
-            UrlImages = new List<string>();
+            UrlImages = new List<ImageDto>();
         }
 
         public string State { get; set; }
         public string Category { get; set; }
 
-        public List<string> UrlImages { get; set; }
+        public List<ImageDto> UrlImages { get; set; }
     }
 }

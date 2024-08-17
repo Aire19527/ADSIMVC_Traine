@@ -105,10 +105,12 @@
                         </div>
                     </div>
 
-
+                  
                     <div class="row mt-2" id="idGallery">
                         <h4>Galería</h4>
-                        <div class="gallery" ></div>
+
+
+                        <div class="gallery row" ></div>
                     </div>
 
                 </form>
@@ -278,17 +280,28 @@
             idCategory = product.idCategory;
             loadCmbCategory(listCategory, product.idCategory);
             idProduct = id;
-            
-            var gallery = $(".gallery");
-            gallery.empty();
-            product.urlImages.forEach(function (img) {
-                var imgElement = $('<img>').attr('src', img).attr('alt', img);
-                gallery.append(imgElement);
 
-            });
-
+            realoadImageFromList(product.urlImages);
 
             openModal(false);
+        }
+
+        function realoadImageFromList(urlImages) {
+            var gallery = $(".gallery");
+            gallery.empty();
+            urlImages.forEach(function (img) {
+                console.log('imagen: ', img);
+                //var imgElement = $('<img>').attr('src', img).attr('alt', img);
+                var imgElement = `
+                                <div class="card col-md-3">
+                                                            <img src="`+ img.urlImage + `" class="card-img-top" alt="imagen producto">
+                                    <div class="card-footer">
+                                                        <button class="btn btn-danger" onclick="deleteImage(`+ img.idImage + `)" type="button">Eliminar</button>
+                                    </div>
+                                </div>
+                                `;
+                gallery.append(imgElement);
+            });
         }
 
         function deleteProduct(idProduct) {
@@ -309,13 +322,7 @@
                 },
                 dataType: 'json',
                 success: function (result) {
-                    var gallery = $(".gallery");
-                    gallery.empty();
-                    result.forEach(function (img) {
-                        var imgElement = $('<img>').attr('src', img.urlImage).attr('alt', img.urlImage);
-                        gallery.append(imgElement);
-
-                    });
+                    realoadImageFromList(result);
                 },
                 error: function (error) {
                     console.error(error);
@@ -493,5 +500,40 @@
             loadCmbCategory(listCategory);
         }
 
+
+        function deleteImage(idImagen) {
+            console.log('Id Imagen: ', idImagen);
+            alertDelete().then((result) => {
+                if (result.isConfirmed) {
+                    confirmDeleteImage(idImagen);                    
+                }
+            });
+
+        }
+
+        function confirmDeleteImage(idImagen){
+            $.ajax({
+                url: '@Url.Action("DeleteImageProduct", "Product")',
+                method: 'DELETE',
+                data: {
+                    idImageProduct: idImagen
+                },
+                dataType: 'json',
+                success: function (result) {
+                    if(result)
+                    {
+                        toastMessage("success","Imagen eliminada exitosamente");
+                        getImagesByProduct(idProduct);
+                    }
+                    else{
+                        alertWarning('Ha ocurrido un error al elimnar la imagen, por favor volver a intentarlo');
+                    }
+                },
+                error: function (error) {
+                    console.error(error);
+                    alertError('Ha ocurrido un error, por favor vuelva a intentarlo');
+                }
+            });
+        }
     </script>
 }
