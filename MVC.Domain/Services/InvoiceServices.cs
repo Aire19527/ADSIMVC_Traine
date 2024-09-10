@@ -28,8 +28,10 @@ namespace MVC.Domain.Services
 
         #region Methods
 
-        public async void AddInvoice(AddInvoiceDto invoice)
+        public async Task<bool> AddInvoice(AddInvoiceDto invoice)
         {
+            bool result = false;
+
             if (!invoice.Details.Any())
                 throw new Exception("Los productos son obligatorios para crear una factura");
 
@@ -50,9 +52,30 @@ namespace MVC.Domain.Services
                 Total = details.Sum(x => x.SubTotal)
             };
 
-            await _invoiceRepository.Add(invoiceEntity);
-            await _productServices.UpdateStockProduct(invoice.Details);
 
+
+            using (var transaction = await _invoiceRepository.BeginTransactionAsync())
+            {
+                try
+                {
+                    result = await _invoiceRepository.Add(invoiceEntity) > 1;
+                    if (result)
+                        await _productServices.UpdateStockProduct(invoice.Details);
+
+                    if (!result)
+                        await transaction.RollbackAsync();
+                    else
+                        await transaction.CommitAsync();
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    throw ex;
+                }
+            }
+
+
+            return result;
         }
         #endregion
     }

@@ -1,12 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MVC.Data.DTO.Invoice;
 
 namespace MVC.Domain.Services.Interfaces
 {
+
+    
+
+    
+
+
+    #region Viewws
     public interface IInvoiceServices
     {
-    }
+        Task<bool> AddInvoice(AddInvoiceDto invoice);
+    } 
+    #endregion
 }

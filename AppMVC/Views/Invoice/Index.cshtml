@@ -1,0 +1,106 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+
+
+<div class="row">
+    <div class="col-md-6">
+        <h1>Lista de Facturas</h1>
+    </div>
+
+    <div class="col-md-6">
+        <button type="button" class="btn btn-primary float-end" onclick="openModal(true)">
+            <i class="fa-sharp fa-solid fa-plus"></i>
+            Nuevo Facturas
+        </button>
+    </div>
+
+</div>
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="modalInvoice" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="idTitleModal">Crear producto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label class="col-form-label">Tipo factura</label>
+                            <select id="cmbCategory" class="form-control">
+                                <option disabled selected>Seleccionar</option>
+                            </select>
+                        </div>
+                        
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="col-form-label">Cantidad</label>
+                            <input type="number" class="form-control" id="txtAmount" placeholder="Cantidad" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="col-form-label">Precio</label>
+                            <input type="text" class="form-control" id="txtPrice" placeholder="Precio" />
+                        </div>
+
+                    </div>
+
+
+
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button"
+                        class="btn btn-danger"
+                        data-bs-dismiss="modal"
+                        onclick="clearForm()">
+                    <i class="fas fa-cancel mx-1"> </i> Cerrar
+                </button>
+                <button type="button"
+                        class="btn btn-primary"
+                        onclick="saveProduct()">
+                    <i class="fas fa-save mx-1"> </i>
+                    Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+
+    <script type="text/javascript">
+
+        listInvoices= [];
+        listTtyeinvoices= [];
+        idInvoices= 0;
+        $(document).ready(function () {
+            console.log("sección facturas");
+        });
+
+        function openModal(isInsert) {
+            if (isInsert) {
+                $('#btnSaveImage').attr('hidden', true);
+                $('#idTitleModal').html('Crear Factura');
+            } else {
+                $('#btnSaveImage').attr('hidden', false);
+                $('#idTitleModal').html('Editar Factura');
+            }
+
+            const myModal = new bootstrap.Modal('#modalInvoice', {
+                keyboard: false
+            });
+            myModal.show();
+        }
+    </script>
+}
