@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AppMVC.Handlers;
+using Microsoft.AspNetCore.Mvc;
 using MVC.Data.DTO.Product;
 using MVC.Domain.Services.Interfaces;
 
 namespace AppMVC.Controllers
 {
+    [TypeFilter(typeof(CustomExceptionHandler))]
     public class ProductController : Controller
     {
         #region Attributes
@@ -33,6 +35,15 @@ namespace AppMVC.Controllers
         public async Task<IActionResult> GetAllProduct()
         {
             List<ConsultProductDto> categories = await _productServices.GetAllProduct();
+
+            return Ok(categories);
+        }
+
+        [HttpGet]
+        [Route("GetAllProductAutoComplete")]
+        public IActionResult GetAllProductAutoComplete(string code)
+        {
+            List<ConsultProductDto> categories =  _productServices.GetAllProductAutoComplete(code);
 
             return Ok(categories);
         }

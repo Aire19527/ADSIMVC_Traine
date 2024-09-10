@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using MVC.Common.Exceptions;
 using MVC.Data.DTO.Product;
 using MVC.Data.Entity;
 using MVC.Data.Repository.Interfaces;
@@ -34,7 +35,7 @@ namespace MVC.Domain.Services
         {
             ImageProductEntity image = await _imagesProductRepository.FirstOrDefault(x => x.IdImageProduct == idImageProduct);
             if (image == null)
-                throw new Exception("La imagen a eliminar, no existe");
+                throw new BusinessException("La imagen a eliminar, no existe");
 
             DeleteFilePath(image.UrlImage);
 
@@ -60,7 +61,7 @@ namespace MVC.Domain.Services
         public async Task<bool> AddImages(AddImagesDto imagesDto)
         {
             if (!imagesDto.Images.Any())
-                throw new Exception("Imagene obligatorías");
+                throw new BusinessException("Imagene obligatorías");
 
             var configFile = _configuration.GetSection("PathFiles");
             int size = Convert.ToInt32(configFile["SizeFile"]);
@@ -69,13 +70,13 @@ namespace MVC.Domain.Services
             foreach (var image in imagesDto.Images)
             {
                 if (image.Length > maxBytes)
-                    throw new Exception($"El archivo  {image.FileName} es mayor a : [{size} MB]");
+                    throw new BusinessException($"El archivo  {image.FileName} es mayor a : [{size} MB]");
 
                 string extension = Path.GetExtension(image.FileName);
                 if (!ValidExtension(extension))
                 {
                     string allowedExtensions = _configuration["PathFiles:AllowedExtensions"];
-                    throw new Exception($"El archivo  {image.FileName} no es permitido, los permitidos son: [{allowedExtensions}]");
+                    throw new BusinessException($"El archivo  {image.FileName} no es permitido, los permitidos son: [{allowedExtensions}]");
                 }
 
                 string url = configFile["PathImages"];

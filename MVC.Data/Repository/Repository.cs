@@ -77,6 +77,14 @@ namespace MVC.Data.Repository
             return await PerformInclusions(includeProperties, query).ToListAsync();
         }
 
+        public IQueryable<T> FinAll(Expression<Func<T, bool>> where, params Expression<Func<T, object>>[] includeProperties)
+        {
+            IQueryable<T> query = AsQueryable();
+            query = PerformInclusions(includeProperties, query);
+
+            return  query.Where(where);
+        }
+
         public async Task<List<T>> GetWhere(Expression<Func<T, bool>> predicate)
         {
             return await _context.Set<T>().Where(predicate).ToListAsync();

@@ -1,12 +1,8 @@
-﻿using MVC.Data.DTO.Invoice;
+﻿using MVC.Common.Exceptions;
+using MVC.Data.DTO.Invoice;
 using MVC.Data.Entity;
 using MVC.Data.Repository.Interfaces;
 using MVC.Domain.Services.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MVC.Domain.Services
 {
@@ -33,7 +29,7 @@ namespace MVC.Domain.Services
             bool result = false;
 
             if (!invoice.Details.Any())
-                throw new Exception("Los productos son obligatorios para crear una factura");
+                throw new BusinessException("Los productos son obligatorios para crear una factura");
 
 
             var details = invoice.Details.Select(x => new InvoiceDetailEntity()
@@ -66,6 +62,11 @@ namespace MVC.Domain.Services
                         await transaction.RollbackAsync();
                     else
                         await transaction.CommitAsync();
+                }
+                catch (BusinessException ex)
+                {
+                    await transaction.RollbackAsync();
+                    throw ex;
                 }
                 catch (Exception ex)
                 {

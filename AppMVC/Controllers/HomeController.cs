@@ -1,9 +1,11 @@
+using AppMVC.Handlers;
 using AppMVC.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
 namespace AppMVC.Controllers
 {
+    [TypeFilter(typeof(CustomExceptionHandler))]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;

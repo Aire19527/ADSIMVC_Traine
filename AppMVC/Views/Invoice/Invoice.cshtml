@@ -1,0 +1,100 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+
+<div class="row">
+    <div class="col-md-6">
+        <h1>Crear de Facturas</h1>
+    </div>
+
+    <div class="col-md-6">
+        <button type="button" class="btn btn-primary float-end" onclick="volver()">
+            <i class="fa-sharp fa-solid fa-arrow-left"></i>
+           Volver
+        </button>
+    </div>
+
+</div>
+
+<hr />
+
+<form>
+    <div class="row">
+        <div class="col-md-8">
+            <label class="col-form-label">Producto</label>
+            <input type="text" class="form-control" id="txtAutoComplete" placeholder="Buscar producto" />
+        </div>
+
+        <div class="col-md-4">
+            <label class="col-form-label">Tipo factura</label>
+            <select id="cmbCategory" class="form-control">
+                <option disabled selected>Seleccionar</option>
+            </select>
+        </div>
+
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <label class="col-form-label">Cantidad</label>
+            <input type="number" class="form-control" id="txtAmount" placeholder="Cantidad" />
+        </div>
+        <div class="col-md-4">
+            <label class="col-form-label">Precio</label>
+            <input type="text" class="form-control" id="txtPrice" placeholder="Precio" />
+        </div>
+
+        <div class="col-md-4">
+            <button type="button" class="btn btn-success form-control float-end " style="margin-top: 35px;">
+                <i class="fa-sharp fa-solid fa-cart-plus"></i>
+                Agregar al carrito
+            </button>
+        </div>
+
+    </div>
+
+
+
+
+</form>
+<br />
+<hr />
+
+<div class="row">
+
+    <div class="col-md-12">
+        <table class="table" id="tblProduct">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">Producto</th>
+                    <th scope="col">Cantidad</th>
+                    <th scope="col">Precio</th>
+                    <th scope="col">SubTotal</th>
+                    <th scope="col">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+
+    <script type="text/javascript">
+
+        listInvoices = [];
+        listTtyeinvoices = [];
+        idInvoices = 0;
+        $(document).ready(function () {
+            console.log("sección facturas");
+        });
+
+        function volver() {
+            window.history.back();
+        }
+    </script>
+}

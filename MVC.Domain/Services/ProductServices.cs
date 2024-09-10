@@ -1,17 +1,11 @@
 ﻿using Microsoft.Extensions.Configuration;
 using MVC.Common.Enums;
-using MVC.Data.DTO.Category;
+using MVC.Common.Exceptions;
 using MVC.Data.DTO.Invoice;
 using MVC.Data.DTO.Product;
 using MVC.Data.Entity;
 using MVC.Data.Repository.Interfaces;
 using MVC.Domain.Services.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace MVC.Domain.Services
 {
@@ -34,6 +28,34 @@ namespace MVC.Domain.Services
 
         #region Methods
 
+        public List<ConsultProductDto> GetAllProductAutoComplete(string code)
+        {
+            List<ProductEntity> products = _productRepository.FinAll(x => (x.Name + x.CategoryEntity.Category).Contains(code),
+                                                                           x => x.StateEntity,
+                                                                           c => c.CategoryEntity,
+                                                                           i => i.ImageProductEntities).Take(10).ToList();
+
+            List<ConsultProductDto> productDtos = products.Select(x => new ConsultProductDto()
+            {
+                Amount = x.Amount,
+                IdCategory = x.IdCategory,
+                IdProduct = x.IdProduct,
+                Name = x.Name,
+                Price = x.Price,
+                State = x.StateEntity.State,
+                Category = x.CategoryEntity.Category,
+                UrlImages = x.ImageProductEntities.Select(i => new ImageDto()
+                {
+                    IdImage = i.IdImageProduct,
+                    UrlImage = i.UrlImage,
+                    IdProduct = i.IdProduct
+                }).ToList(),
+            }).ToList();
+
+            return productDtos;
+        }
+
+
         public async Task<List<ConsultProductDto>> GetAllProduct()
         {
             List<ProductEntity> products = await _productRepository.GetAll(x => x.StateEntity,
@@ -52,13 +74,12 @@ namespace MVC.Domain.Services
                 {
                     IdImage = i.IdImageProduct,
                     UrlImage = i.UrlImage,
-                    IdProduct=i.IdProduct
+                    IdProduct = i.IdProduct
                 }).ToList(),
             }).ToList();
 
             return productDtos;
         }
-
 
         public async Task<bool> AddProduct(AddProductDto add)
         {
@@ -66,7 +87,7 @@ namespace MVC.Domain.Services
             int idState = (int)Enums.State.ProductoDisponible;
 
             if (add.Amount == 0)
-                throw new Exception("El stock mínimo es de 1 producto.");
+                throw new BusinessException("El stock mínimo es de 1 producto.");
             else if (add.Amount >= 1 && add.Amount <= stockLimit)
                 idState = (int)Enums.State.ProductoLimitado;
 
@@ -101,6 +122,11 @@ namespace MVC.Domain.Services
                     else
                         await transaction.CommitAsync();
                 }
+                catch (BusinessException ex)
+                {
+                    await transaction.RollbackAsync();
+                    throw ex;
+                }
                 catch (Exception ex)
                 {
                     await transaction.RollbackAsync();
@@ -126,9 +152,6 @@ namespace MVC.Domain.Services
             return result;
         }
 
-
-
-
         public async Task<bool> DeleteProduct(int idProduct)
         {
             ProductEntity entity = await GetProductEntity(idProduct);
@@ -144,13 +167,13 @@ namespace MVC.Domain.Services
                 if (detail.Amount > product.Amount)
                 {
                     string message = $"La cantidad de: [{product.Name}] es mayor a la que hay en Stock, disponibles: [{product.Amount}]";
-                    throw new Exception(message);
+                    throw new BusinessException(message);
                 }
 
                 if (detail.Price != product.Price)
                 {
                     string message = $"El precio de: [{product.Name}] no coincide con la que hay en el sistema.";
-                    throw new Exception(message);
+                    throw new BusinessException(message);
                 }
 
                 product.Amount = (product.Amount - detail.Amount);
@@ -165,7 +188,7 @@ namespace MVC.Domain.Services
         {
             ProductEntity entity = await _productRepository.FirstOrDefault(x => x.IdProduct == idProduct);
             if (entity == null)
-                throw new Exception("El producto no existe en base de datos");
+                throw new BusinessException("El producto no existe en base de datos");
 
             return entity;
         }

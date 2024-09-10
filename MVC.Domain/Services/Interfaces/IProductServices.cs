@@ -5,6 +5,7 @@ namespace MVC.Domain.Services.Interfaces
 {
     public interface IProductServices
     {
+        List<ConsultProductDto> GetAllProductAutoComplete(string code);
         Task<List<ConsultProductDto>> GetAllProduct();
 
         Task<bool> AddProduct(AddProductDto add);

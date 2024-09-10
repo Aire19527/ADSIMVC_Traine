@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AppMVC.Handlers;
+using Microsoft.AspNetCore.Mvc;
 using MVC.Domain.Services.Interfaces;
 
 namespace AppMVC.Controllers
 {
+    [TypeFilter(typeof(CustomExceptionHandler))]
     public class InvoiceController : Controller
     {
         #region Attributes
@@ -19,6 +21,11 @@ namespace AppMVC.Controllers
 
         #region Views
         public IActionResult Index()
+        {
+            return View();
+        }
+
+        public IActionResult Invoice()
         {
             return View();
         }

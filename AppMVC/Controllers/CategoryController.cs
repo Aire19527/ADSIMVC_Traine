@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AppMVC.Handlers;
+using Microsoft.AspNetCore.Mvc;
 using MVC.Data.DTO.Category;
 using MVC.Data.Entity;
 using MVC.Domain.Services.Interfaces;
 
 namespace AppMVC.Controllers
 {
+    [TypeFilter(typeof(CustomExceptionHandler))]
     public class CategoryController : Controller
     {
         #region Attributes
