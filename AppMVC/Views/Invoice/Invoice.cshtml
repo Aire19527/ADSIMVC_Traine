@@ -30,7 +30,7 @@
 
         <div class="col-md-4">
             <label class="col-form-label">Tipo factura</label>
-            <select id="cmbCategory" class="form-control">
+            <select id="cmbInvoiceType" class="form-control">
                 <option disabled selected>Seleccionar</option>
             </select>
         </div>
@@ -91,10 +91,95 @@
         idInvoices = 0;
         $(document).ready(function () {
             console.log("sección facturas");
+            getAllInvoiceType();
+
+
+
+
+            $("#txtAutoComplete").autocomplete({
+                source: function (request, response) {
+                    $.ajax({
+                        url: '@Url.Action("GetAllProductAutoComplete", "Product")',
+                        data: {
+                            code: request.term
+                        },
+                        method: 'GET',
+                        dataType: 'json',
+                        success: function (data) {
+
+                            console.log('resultado: ', data);
+                            response($.map(data, function (item) {
+                                return {
+                                    label: item.name + " - " + item.category + " - " + item.state,
+                                    value: item.name
+                                };
+
+
+                            }));
+                        },
+                        error: function (error) {
+                            console.error(error);
+                        }
+                    });
+                },
+                minLength: 3
+            });
+
+
+
+            //getAllProductAutoComplete("car");
         });
 
         function volver() {
             window.history.back();
         }
+
+        function getAllProductAutoComplete(parameter) {
+            $.ajax({
+                url: '@Url.Action("GetAllProductAutoComplete", "Product")',
+                data: {
+                    code: parameter
+                },
+                method: 'GET',
+                dataType: 'json',
+                success: function (result) {
+
+                    console.log('resultado: ', result);
+                },
+                error: function (error) {
+                    console.error(error);
+                }
+            });
+        }
+
+        function getAllInvoiceType(){
+            $.ajax({
+                url: '@Url.Action("GetAllInvoiceType", "InvoiceType")',
+                method: 'GET',
+                dataType: 'json',
+                success: function (result) {
+                    listTtyeinvoices = result;
+                    console.log('resultado: ', listTtyeinvoices);
+                    loadInvoiceType(listTtyeinvoices);
+                },
+                error: function (error) {
+                    console.error(error);
+                }
+            });
+        }
+
+        function loadInvoiceType(data, selected) {
+            $("#cmbInvoiceType").empty();
+            $("#cmbInvoiceType").append('<option value="" disabled selected>Seleccione un tipo factura</option>');
+            $.each(data, function (i, lista) {
+                if (data[i].idInvoiceType == selected) {
+                    $("#cmbInvoiceType").append('<option value="' + data[i].idInvoiceType + '"selected>' + data[i].invoiceType + '</option>');
+                }
+                else {
+                    $("#cmbInvoiceType").append('<option value="' + data[i].idInvoiceType + '">' + data[i].invoiceType + '</option>');
+                }
+            });
+        }
+
     </script>
 }
