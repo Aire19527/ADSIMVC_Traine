@@ -29,8 +29,8 @@
         </div>
 
         <div class="col-md-4">
-            <label class="col-form-label">Tipo factura</label>
-            <select id="cmbInvoiceType" class="form-control">
+            <label class="col-form-label">Tipo fáctura</label>
+            <select id="cmbInvoiceType" class="form-control" onchange="selectInvoiceType()">
                 <option disabled selected>Seleccionar</option>
             </select>
         </div>
@@ -48,7 +48,7 @@
         </div>
 
         <div class="col-md-4">
-            <button type="button" class="btn btn-success form-control float-end " style="margin-top: 35px;">
+            <button type="button" class="btn btn-success form-control float-end " style="margin-top: 35px;" onclick="addCartProduct()">
                 <i class="fa-sharp fa-solid fa-cart-plus"></i>
                 Agregar al carrito
             </button>
@@ -87,14 +87,26 @@
     <script type="text/javascript">
 
         listInvoices = [];
+         idInvoices = 0;
+
+        listProducts= [];
         listTtyeinvoices = [];
-        idInvoices = 0;
+        idInvoiceType = 0;
+       
+        selectedProductId = 0;
+
         $(document).ready(function () {
             console.log("sección facturas");
             getAllInvoiceType();
 
 
-
+            new Cleave('#txtPrice', {
+                numeral: true,
+                numeralThousandsGroupStyle: 'thousand',
+                numeralDecimalMark: ',',
+                delimiter: '.',
+                prefix: '$'
+            });
 
             $("#txtAutoComplete").autocomplete({
                 source: function (request, response) {
@@ -106,12 +118,14 @@
                         method: 'GET',
                         dataType: 'json',
                         success: function (data) {
-
-                            console.log('resultado: ', data);
+                            listProducts = data;
+                            console.log('resultado: ', listProducts);
                             response($.map(data, function (item) {
                                 return {
-                                    label: item.name + " - " + item.category + " - " + item.state,
-                                    value: item.name
+                                    label: item.name + " - " + item.category + " : " + item.amount,
+                                    value: item.name,
+                                    idProduct: item.idProduct,
+                                    price: item.price
                                 };
 
 
@@ -122,7 +136,17 @@
                         }
                     });
                 },
-                minLength: 3
+                minLength: 3,
+                select: function (event, ui) {
+                    console.log("ui ", ui);
+                    // Cuando se selecciona un elemento, almacenar el idProduct
+                    selectedProductId = ui.item.idProduct;
+                    const price = ui.item.price;
+                    console.log("Producto seleccionado, ID: " + selectedProductId);
+                    console.log("Producto price: " + price);
+
+                    $("#txtPrice").val(convertirAPesos(price));
+                }
             });
 
 
@@ -180,6 +204,80 @@
                 }
             });
         }
+
+        function selectInvoiceType() {
+            /* Para obtener el texto */
+            var combo = document.getElementById("cmbInvoiceType");
+            var value = combo.options[combo.selectedIndex].value;
+
+            idInvoiceType = value;
+            console.log('idInvoiceType: ', idInvoiceType);
+        }
+
+        function addCartProduct()
+        {
+            if (validateCart()) {
+
+                const product = listProducts.find(x => x.idProduct == selectedProductId);
+                const count = $('#txtAmount').val();
+                const price = limpiarValor($('#txtPrice').val());
+                const subTotal = Number(count) * Number(price);
+                console.log('subTotal: ', subTotal);
+            }else{
+                console.log('no pasa');
+            }
+            
+        }
+
+        function validateCart(){
+            if ($('#txtAutoComplete').val() == '') {
+                $('#txtAutoComplete').focus();
+                toastMessage('warning', 'Seleccione un producto antes de agregar.');
+                return false;
+            } else {
+                if (selectedProductId == 0) {
+                    $('#txtAutoComplete').focus();
+                    toastMessage('warning', 'Seleccione un producto válido antes agregar.');
+                    return false;
+                } else if (listProducts.length==0) {
+                    $('#txtAutoComplete').focus();
+                    toastMessage('warning', 'Seleccione un producto válido antes agregar.');
+                    return false;
+                }
+            }
+
+            if (idInvoiceType == 0) {
+                $('#cmbInvoiceType').focus();
+                toastMessage('warning', 'Seleccione un tipo de fáctura antes agregar.');
+                return false;
+            }
+
+            if ($('#txtAmount').val() == '') {
+                $('#txtAmount').focus();
+                toastMessage('warning', 'Escriba la cantidad antes de agregar.');
+                return false;
+            }
+
+
+            
+            if ($('#txtPrice').val() == '') {
+                $('#txtPrice').focus();
+                toastMessage('warning', 'Escriba el precio antes de agregar.');
+                return false;
+            }else{
+                const price = limpiarValor($('#txtPrice').val());
+                if (price=='' || "0")
+                {
+                    $('#txtPrice').focus();
+                    toastMessage('warning', 'Escriba el precio antes de agregar.');
+                }
+            }
+
+            return true;
+        }
+
+
+
 
     </script>
 }

@@ -201,22 +201,7 @@
             });
         }
 
-        function convertirAPesos(valor) {
-            // Convertir a número flotante en caso de ser necesario
-            //let numero = parseFloat(valor.toString().replace(/\/g, '').replace(',', '.'));
-            // Devolver el valor formateado
-            return '$' + valor.toLocaleString("es-CO", { minimumFractionDigits: 0 });
-        }
-
-
-        function limpiarValor(valor) {
-            console.log('valor recibido: ', valor);
-            // Eliminar el símbolo de peso y los puntos de separación de miles
-            const result = valor.replace(/\./g, '').replace('$', '');
-            return result;
-            //return parseFloat(valor.replace(/[\$\.]/g, '').replace(',', '.'));
-            // return parseFloat(valor.replace(/[\$,\.]/g, '').replace(',', '.'));
-        }
+        
 
 
         function getAllCategory() {
